@@ -16,6 +16,9 @@ namespace MyCourse
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc(option => option.EnableEndpointRouting = false);
+            services.AddMvc(); //aggiungo i servizi richiesti da MVC
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -27,22 +30,20 @@ namespace MyCourse
                 app.UseDeveloperExceptionPage(); //middleware eccezioni 
             }
 
-            if  (env.IsEnvironment("Production"))
-            {
-                app.UseHttpsRedirection();
-            }
+            //if  (env.IsEnvironment("Production"))
+            //{
+            //    app.UseHttpsRedirection();
+            //}
             app.UseStaticFiles(); //middleware per poter caricare file statici dal server
 
-            app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
+            //app.UseMvcWithDefaultRouting(); Questa è la router di default che fa praticamente quello che ho scritto nelle righe successive
+            app.UseMvc(RouteBuilder =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    string nome = context.Request.Query["nome"];
-                    await context.Response.WriteAsync($"Ciao {nome.ToUpper()}!");
-                });
-            });
+                //courses/detail/5
+                RouteBuilder.MapRoute("default", "{controller=Home}/{action=Index}/{id?}"); //Home , action hanno valori predifiniti Home  e Index per evitare l'errore 404 mentre id con il punto interrogativo diventa opzionale
+            }); // si posso usare più di una route che verranno esaminate in ordine per vedere se c'è corrispondenza nel template
+
+            
         }
     }
 }
